@@ -47,6 +47,13 @@ final class ExportIntegrationTests: XCTestCase {
         // Payload-only companions exist for paste-based MDMs (e.g. Jamf).
         XCTAssertTrue(summary.filesWritten.contains { $0.lastPathComponent.hasSuffix(".payload.json") })
 
+        // Fleet GitOps snippet is written and references the declarations.
+        let fleetURL = try XCTUnwrap(summary.fleetGitOpsURL)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fleetURL.path))
+        let fleet = (try? String(contentsOf: fleetURL, encoding: .utf8)) ?? ""
+        XCTAssertTrue(fleet.contains("configuration_profiles"))
+        XCTAssertTrue(fleet.contains(".ddm.json"))
+
         if ProcessInfo.processInfo.environment["DDM_EXPORT_DIR"] == nil {
             try? FileManager.default.removeItem(at: outDir)
         }

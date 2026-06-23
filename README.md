@@ -13,9 +13,20 @@ by payload, exactly what it did and why.
 
 > _A [Machinery Software](https://github.com/mactesting12) project._
 
-![DDM Migrator screenshot placeholder](docs/screenshot.png)
+![DDM Migrator — results table](docs/screenshot-results.png)
 
-> 📸 _Screenshot placeholder — drop a real screenshot at `docs/screenshot.png`._
+<details>
+<summary><strong>More screenshots</strong></summary>
+
+**Empty state — drop in your profiles**
+
+![Empty state](docs/screenshot-empty.png)
+
+**Expanded detail — per-payload disposition with JSON preview**
+
+![Expanded payload detail with JSON preview](docs/screenshot-expanded.png)
+
+</details>
 
 ---
 
@@ -81,6 +92,13 @@ Run the engine's unit tests (headless, no UI):
 
 ```sh
 swift test
+```
+
+Build a double-clickable, Dock-visible `.app` (with the generated icon):
+
+```sh
+scripts/build-app.sh            # -> build/DDM Migrator.app
+open "build/DDM Migrator.app"
 ```
 
 ## Architecture

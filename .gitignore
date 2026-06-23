@@ -1,0 +1,34 @@
+# Xcode / Swift build artifacts
+.build/
+DerivedData/
+build/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcscheme
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Local-only build spec (kept on disk for context, never published)
+PROMPT.md
+
+# macOS
+.DS_Store
+*.swp
+
+# Editors
+.vscode/
+.idea/
+
+# Local engine output / scratch
+*.ddm.json
+migration-report.md
+/out/
+/output/
+
+# Never commit real profiles — fixtures must be synthetic and explicitly tracked
+*.mobileconfig
+!fixtures/*.mobileconfig

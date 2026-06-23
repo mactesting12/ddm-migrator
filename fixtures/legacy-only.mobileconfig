@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  SYNTHETIC TEST FIXTURE — not a real configuration profile.
+  Payloads with no declarative equivalent, to exercise the legacy-wrap path
+  (stage 2e). The Wi-Fi values below are invented and non-functional.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadIdentifier</key>
+  <string>com.example.synthetic.legacy</string>
+  <key>PayloadUUID</key>
+  <string>55555555-5555-5555-5555-555555555555</string>
+  <key>PayloadDisplayName</key>
+  <string>Synthetic Legacy Payloads</string>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.wifi.managed</string>
+      <key>PayloadIdentifier</key>
+      <string>com.example.synthetic.legacy.wifi</string>
+      <key>PayloadUUID</key>
+      <string>66666666-6666-6666-6666-666666666666</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>Wi-Fi (synthetic)</string>
+      <key>SSID_STR</key>
+      <string>SyntheticNet</string>
+      <key>EncryptionType</key>
+      <string>WPA2</string>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.dock</string>
+      <key>PayloadIdentifier</key>
+      <string>com.example.synthetic.legacy.dock</string>
+      <key>PayloadUUID</key>
+      <string>77777777-7777-7777-7777-777777777777</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>Dock (synthetic)</string>
+      <key>tilesize</key>
+      <integer>64</integer>
+    </dict>
+  </array>
+</dict>
+</plist>

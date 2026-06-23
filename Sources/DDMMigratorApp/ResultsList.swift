@@ -27,9 +27,12 @@ struct ResultsList: View {
     }
 }
 
+/// Demo flag: when DDM_DEMO_EXPAND=1, rows and JSON start expanded (screenshots).
+private let demoExpand = ProcessInfo.processInfo.environment["DDM_DEMO_EXPAND"] == "1"
+
 private struct ProfileRow: View {
     let profile: ProfileResult
-    @State private var expanded = false
+    @State private var expanded = demoExpand
 
     var body: some View {
         VStack(spacing: 0) {
@@ -95,7 +98,7 @@ private struct StatusBadge: View {
 
 private struct PayloadDetail: View {
     let payload: PayloadResult
-    @State private var showJSON = false
+    @State private var showJSON = demoExpand
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {

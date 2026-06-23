@@ -26,6 +26,7 @@ struct ContentView: View {
         .onDrop(of: [.fileURL], isTargeted: $isTargeted, perform: handleDrop)
         .background(isTargeted ? Color.accentColor.opacity(0.06) : Color.clear)
         .frame(minWidth: 820, minHeight: 560)
+        .onAppear(perform: applyDemoModeIfRequested)
     }
 
     private var header: some View {
@@ -88,6 +89,39 @@ struct ContentView: View {
         let declarations = model.profiles.reduce(0) { $0 + $1.declarationCount }
         let payloads = model.profiles.reduce(0) { $0 + $1.sourcePayloadCount }
         return "\(model.profiles.count) profile(s) · \(payloads) payload(s) · \(declarations) declaration(s)"
+    }
+
+    // MARK: Demo mode (for screenshots / kicking the tires)
+    //
+    // Set DDM_DEMO_FILES to a colon-separated list of .mobileconfig paths to
+    // preload them on launch. Optionally set DDM_DEMO_WINDOW to "x,y,w,h" (top-
+    // left origin, points) to place the window at a known spot for a clean
+    // screenshot. Has no effect in normal use.
+    private func applyDemoModeIfRequested() {
+        let env = ProcessInfo.processInfo.environment
+        if let frame = env["DDM_DEMO_WINDOW"] {
+            let n = frame.split(separator: ",").compactMap { Double($0) }
+            if n.count == 4, let screen = NSScreen.main, let win = NSApp.windows.first {
+                win.setContentSize(NSSize(width: n[2], height: n[3]))
+                win.setFrameTopLeftPoint(
+                    NSPoint(x: n[0], y: screen.frame.height - n[1]))
+                win.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+                // Report the exact on-screen frame (top-left origin, points) so
+                // a screenshot script can crop precisely. Demo-only.
+                if let path = env["DDM_DEMO_FRAMEFILE"] {
+                    let f = win.frame
+                    let topY = screen.frame.height - (f.origin.y + f.height)
+                    let line = "\(Int(f.origin.x)),\(Int(topY)),\(Int(f.width)),\(Int(f.height))"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        try? line.write(toFile: path, atomically: true, encoding: .utf8)
+                    }
+                }
+            }
+        }
+        if let files = env["DDM_DEMO_FILES"], !files.isEmpty {
+            model.ingest(urls: files.split(separator: ":").map { URL(fileURLWithPath: String($0)) })
+        }
     }
 
     // MARK: Actions

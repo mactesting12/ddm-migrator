@@ -9,11 +9,14 @@ public repository and its history is permanent.
 
 ## What's here
 
-| File | Exercises |
-|---|---|
-| `applicationaccess-mixed.mobileconfig` | The `com.apple.applicationaccess` fan-out (stage 2d): Intelligence + Siri + keyboard keys plus plain restriction keys that fall through to a legacy residual. |
-| `mcx-managed-prefs.mobileconfig` | MCX unwrapping (stage 2c): two preference domains under `Forced[0].mcx_preference_settings`. |
-| `legacy-only.mobileconfig` | The legacy-wrap path (stage 2e): payloads with no declarative equivalent. |
+| File | Exercises | Resulting status |
+|---|---|---|
+| `applicationaccess-mixed.mobileconfig` | The `com.apple.applicationaccess` fan-out (stage 2d): Intelligence + Siri + keyboard keys plus plain restriction keys that fall through to a legacy residual. | ⚠️ partial |
+| `all-fanout-domains.mobileconfig` | Fan-out covering **all four** DDM domains (intelligence, external-intelligence, siri, keyboard) with no residual — a clean migration. | ✅ migrated |
+| `mcx-managed-prefs.mobileconfig` | MCX unwrapping (stage 2c): two preference domains under `Forced[0].mcx_preference_settings`. | 📦 legacy wrap |
+| `mcx-set-once.mobileconfig` | MCX using `Set-Once` instead of `Forced` — not auto-migrated, so it's flagged for review. | ⚠️ partial |
+| `legacy-only.mobileconfig` | The legacy-wrap path (stage 2e): payloads with no declarative equivalent. | 📦 legacy wrap |
+| `not-a-profile.mobileconfig` | A non-plist file — exercises per-file error handling (never a crash). | ⛔️ error |
 
 ## Adding a fixture
 

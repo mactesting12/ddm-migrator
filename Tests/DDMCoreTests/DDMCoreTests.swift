@@ -271,4 +271,38 @@ final class DDMCoreTests: XCTestCase {
         let result = migrator.migrate(data: data, fileName: "applicationaccess-mixed.mobileconfig")
         XCTAssertNil(result.error)
     }
+
+    func testFixtureAllFanOutDomainsProducesFourDomains() throws {
+        guard let data = loadFixture(named: "all-fanout-domains.mobileconfig") else {
+            throw XCTSkip("fixture missing")
+        }
+        let result = migrator.migrate(data: data, fileName: "all-fanout-domains.mobileconfig")
+        let domains = Set(result.payloads.flatMap { $0.targetDomains })
+        XCTAssertEqual(domains, [
+            "com.apple.configuration.intelligence.settings",
+            "com.apple.configuration.external-intelligence.settings",
+            "com.apple.configuration.siri.settings",
+            "com.apple.configuration.keyboard.settings",
+        ])
+        XCTAssertEqual(result.declarationCount, 4)
+        XCTAssertEqual(result.status, .migrated) // no residual legacy
+    }
+
+    func testFixtureMCXSetOnceIsFlagged() throws {
+        guard let data = loadFixture(named: "mcx-set-once.mobileconfig") else {
+            throw XCTSkip("fixture missing")
+        }
+        let result = migrator.migrate(data: data, fileName: "mcx-set-once.mobileconfig")
+        XCTAssertEqual(result.payloads.first?.classification, .flagged)
+        XCTAssertEqual(result.status, .partial)
+    }
+
+    func testFixtureNotAProfileIsError() throws {
+        guard let data = loadFixture(named: "not-a-profile.mobileconfig") else {
+            throw XCTSkip("fixture missing")
+        }
+        let result = migrator.migrate(data: data, fileName: "not-a-profile.mobileconfig")
+        XCTAssertEqual(result.status, .error)
+        XCTAssertNotNil(result.error)
+    }
 }

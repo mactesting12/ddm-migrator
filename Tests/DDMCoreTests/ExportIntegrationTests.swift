@@ -37,6 +37,16 @@ final class ExportIntegrationTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: summary.reportJSONURL.path))
         XCTAssertGreaterThan(summary.filesWritten.count, 5)
 
+        // Vendor-agnostic deployment guide is written and covers the vendors.
+        XCTAssertTrue(FileManager.default.fileExists(atPath: summary.deploymentGuideURL.path))
+        let guide = (try? String(contentsOf: summary.deploymentGuideURL, encoding: .utf8)) ?? ""
+        for vendor in ["FleetDM", "Jamf Pro", "Kandji", "Addigy", "Mosyle", "Intune"] {
+            XCTAssertTrue(guide.contains(vendor), "DEPLOYMENT.md missing \(vendor)")
+        }
+
+        // Payload-only companions exist for paste-based MDMs (e.g. Jamf).
+        XCTAssertTrue(summary.filesWritten.contains { $0.lastPathComponent.hasSuffix(".payload.json") })
+
         if ProcessInfo.processInfo.environment["DDM_EXPORT_DIR"] == nil {
             try? FileManager.default.removeItem(at: outDir)
         }

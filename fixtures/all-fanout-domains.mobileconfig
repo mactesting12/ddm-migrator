@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  SYNTHETIC TEST FIXTURE — not a real configuration profile.
+  A com.apple.applicationaccess payload whose keys cover ALL FOUR DDM fan-out
+  domains (intelligence, external-intelligence, siri, keyboard) with no residual
+  restriction keys — so it migrates cleanly (status: migrated) into four
+  separate declarations.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadIdentifier</key>
+  <string>com.example.synthetic.all-domains</string>
+  <key>PayloadUUID</key>
+  <string>88888888-8888-8888-8888-888888888888</string>
+  <key>PayloadDisplayName</key>
+  <string>Synthetic Restrictions (All DDM Domains)</string>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.applicationaccess</string>
+      <key>PayloadIdentifier</key>
+      <string>com.example.synthetic.all-domains.aa</string>
+      <key>PayloadUUID</key>
+      <string>99999999-9999-9999-9999-999999999999</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>Restrictions</string>
+
+      <!-- Apple Intelligence -> com.apple.configuration.intelligence.settings -->
+      <key>allowGenmoji</key>
+      <false/>
+      <key>allowImagePlayground</key>
+      <false/>
+      <key>allowWritingTools</key>
+      <true/>
+
+      <!-- External intelligence -> com.apple.configuration.external-intelligence.settings -->
+      <key>allowExternalIntelligenceIntegrations</key>
+      <false/>
+      <key>allowExternalIntelligenceIntegrationsSignIn</key>
+      <false/>
+
+      <!-- Siri -> com.apple.configuration.siri.settings -->
+      <key>allowAssistant</key>
+      <false/>
+      <key>forceAssistantProfanityFilter</key>
+      <true/>
+
+      <!-- Keyboard / dictation -> com.apple.configuration.keyboard.settings -->
+      <key>allowDictation</key>
+      <false/>
+      <key>allowAutoCorrection</key>
+      <true/>
+      <key>allowSpellCheck</key>
+      <true/>
+    </dict>
+  </array>
+</dict>
+</plist>

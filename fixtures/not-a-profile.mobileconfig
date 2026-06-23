@@ -1,0 +1,5 @@
+This file is intentionally NOT a valid configuration profile.
+
+SYNTHETIC TEST FIXTURE — it exercises DDM Migrator's per-file error handling:
+an unreadable / non-plist file must produce a clean "error" row in the results
+table, never a crash. Nothing here is real data.

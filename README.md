@@ -22,6 +22,10 @@ by payload, exactly what it did and why.
 
 ![Empty state](docs/screenshot-empty.png)
 
+**One `applicationaccess` payload fanning out to all four DDM domains**
+
+![Fan-out to four DDM domains](docs/screenshot-all-domains.png)
+
 **Expanded detail — per-payload disposition with JSON preview**
 
 ![Expanded payload detail with JSON preview](docs/screenshot-expanded.png)
@@ -54,6 +58,10 @@ Drag in one or many `.mobileconfig` files (or a folder) and DDM Migrator:
 - **Writes a migration report** (`migration-report.md` + `.json`) classifying every
   payload as migrated / fanned-out / legacy-wrapped, with reasons and flagged edge
   cases. This is the part that gives you confidence.
+- **Vendor-neutral output + a deployment guide.** Declarations are standard Apple
+  JSON, not tied to any one MDM. Every export includes a `DEPLOYMENT.md` with
+  per-MDM steps (FleetDM, Jamf Pro, Kandji/Iru, Addigy, Mosyle, Intune) and a
+  `.payload.json` companion for paste-based MDMs.
 
 ## Scope boundary (v1)
 
@@ -67,7 +75,28 @@ It does **not**:
 - verify that declarations actually land on devices.
 
 That boundary is deliberate — it's what makes v1 useful and shippable today. You
-take the generated declarations into your own MDM workflow.
+take the generated declarations into your own MDM workflow (see below).
+
+## Deploying to your MDM (vendor-agnostic)
+
+The output is **standard Apple declaration JSON** (`Type` / `Identifier` /
+`Payload`), so it isn't tied to any one MDM. How you get it onto devices depends
+on the vendor — and not every MDM lets you import a custom declaration yet. Every
+export drops a `DEPLOYMENT.md` with step-by-step instructions; here's the summary:
+
+| MDM | Import custom DDM JSON? | How |
+|---|---|---|
+| **FleetDM** | ✅ Yes | Upload the `.ddm.json` under **Controls → OS settings**, or commit it to Fleet **GitOps** (`apple_settings.configuration_profiles` takes `.json` declarations). |
+| **Jamf Pro** | ✅ Yes (Blueprints) | **Blueprints → Custom Declarations → Add item**: set Kind = Configuration, Channel, **Type**, and **Payload** (use the `.payload.json` companion — Jamf wants the Payload object, not the whole envelope, and generates the Identifier itself). API deploy is "coming soon" per Jamf. |
+| **Kandji (now Iru)** | ⚠️ Not directly | DDM is delivered via Kandji/Iru's own Library items; no documented custom-JSON import. Use the files as the audited source of truth. |
+| **Addigy** | ⚠️ Not directly | DDM via Addigy policies (today mostly OS updates); no custom-JSON import yet. |
+| **Mosyle** | ⚠️ Not directly | DDM via Mosyle's policy UI; no custom-JSON import. |
+| **Intune** | ❌ Not yet | Only Microsoft-surfaced declarations (Settings Catalog → DDM, mainly software updates); no arbitrary custom DDM JSON. |
+
+For the ⚠️/❌ vendors the declarations are still valuable: they're the exact,
+audited settings to reproduce in that MDM's UI, and they're ready to import the
+moment the vendor adds custom-declaration support. Today, **FleetDM and Jamf Pro**
+are the two that accept your own declaration JSON directly.
 
 ## Requirements
 

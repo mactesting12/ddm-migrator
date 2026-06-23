@@ -27,12 +27,15 @@ struct ResultsList: View {
     }
 }
 
-/// Demo flag: when DDM_DEMO_EXPAND=1, rows and JSON start expanded (screenshots).
-private let demoExpand = ProcessInfo.processInfo.environment["DDM_DEMO_EXPAND"] == "1"
+/// Demo flags (screenshots): DDM_DEMO_EXPAND=1 expands rows AND shows JSON;
+/// DDM_DEMO_EXPAND=rows expands rows but leaves JSON collapsed.
+private let demoExpandValue = ProcessInfo.processInfo.environment["DDM_DEMO_EXPAND"] ?? ""
+private let demoExpandRows = demoExpandValue == "1" || demoExpandValue == "rows"
+private let demoShowJSON = demoExpandValue == "1"
 
 private struct ProfileRow: View {
     let profile: ProfileResult
-    @State private var expanded = demoExpand
+    @State private var expanded = demoExpandRows
 
     var body: some View {
         VStack(spacing: 0) {
@@ -98,7 +101,7 @@ private struct StatusBadge: View {
 
 private struct PayloadDetail: View {
     let payload: PayloadResult
-    @State private var showJSON = demoExpand
+    @State private var showJSON = demoShowJSON
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {

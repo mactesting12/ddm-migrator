@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  SYNTHETIC TEST FIXTURE — not a real configuration profile.
+  An MCX payload using the "Set-Once" management state instead of "Forced".
+  DDM Migrator does not auto-migrate Set-Once/Set-Always (the semantics differ),
+  so this payload is FLAGGED for manual review — surfaced, never dropped.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadIdentifier</key>
+  <string>com.example.synthetic.mcx-setonce</string>
+  <key>PayloadUUID</key>
+  <string>AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA</string>
+  <key>PayloadDisplayName</key>
+  <string>Synthetic MCX (Set-Once)</string>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.ManagedClient.preferences</string>
+      <key>PayloadIdentifier</key>
+      <string>com.example.synthetic.mcx-setonce.payload</string>
+      <key>PayloadUUID</key>
+      <string>BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>Managed Preferences (Set-Once)</string>
+      <key>PayloadContent</key>
+      <dict>
+        <key>com.example.setonce</key>
+        <dict>
+          <key>Set-Once</key>
+          <array>
+            <dict>
+              <key>mcx_preference_settings</key>
+              <dict>
+                <key>InitialValue</key>
+                <integer>1</integer>
+              </dict>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>

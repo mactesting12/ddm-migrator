@@ -21,6 +21,7 @@ public enum OutputWriter {
         public let filesWritten: [URL]
         public let reportMarkdownURL: URL
         public let reportJSONURL: URL
+        public let deploymentGuideURL: URL
     }
 
     public enum WriteError: Error, LocalizedError {
@@ -35,7 +36,8 @@ public enum OutputWriter {
     @discardableResult
     public static func write(report: MigrationReport,
                              to outputDirectory: URL,
-                             writePreservedPlists: Bool = true) throws -> WriteSummary {
+                             writePreservedPlists: Bool = true,
+                             writePayloadOnlyFiles: Bool = true) throws -> WriteSummary {
         let fm = FileManager.default
         try ensureDirectory(outputDirectory, fm: fm)
 
@@ -52,6 +54,19 @@ public enum OutputWriter {
                     let fileURL = uniqueURL(in: profileDir, fileName: decl.suggestedFileName(), fm: fm)
                     try decl.jsonData().write(to: fileURL, options: .atomic)
                     written.append(fileURL)
+
+                    // Payload-only companion for paste-based MDMs (e.g. Jamf Pro
+                    // Blueprints, which wants the Payload object, not the envelope).
+                    if writePayloadOnlyFiles {
+                        let payloadURL = fileURL
+                            .deletingPathExtension()        // drop .json
+                            .deletingPathExtension()        // drop .ddm
+                            .appendingPathExtension("payload.json")
+                        if let data = try? decl.payload.prettyPrintedData() {
+                            try? data.write(to: payloadURL, options: .atomic)
+                            written.append(payloadURL)
+                        }
+                    }
 
                     // Companion file preserving the original payload verbatim.
                     if writePreservedPlists, let preserved = p.preservedSource {
@@ -77,10 +92,16 @@ public enum OutputWriter {
         try report.jsonData().write(to: jsonURL, options: .atomic)
         written.append(jsonURL)
 
+        // Vendor-agnostic deployment guide.
+        let deployURL = outputDirectory.appendingPathComponent("DEPLOYMENT.md")
+        try Data(DeploymentGuide.markdown(report: report).utf8).write(to: deployURL, options: .atomic)
+        written.append(deployURL)
+
         return WriteSummary(outputDirectory: outputDirectory,
                             filesWritten: written,
                             reportMarkdownURL: mdURL,
-                            reportJSONURL: jsonURL)
+                            reportJSONURL: jsonURL,
+                            deploymentGuideURL: deployURL)
     }
 
     // MARK: helpers

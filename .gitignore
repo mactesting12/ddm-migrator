@@ -12,6 +12,9 @@ xcuserdata/
 .swiftpm/
 Package.resolved
 
+# Local-only build spec (kept on disk for context, never published)
+PROMPT.md
+
 # macOS
 .DS_Store
 *.swp

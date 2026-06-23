@@ -1,6 +1,6 @@
 # DDM Migrator
 
-[![CI](https://github.com/REPLACE_OWNER/ddm-migrator/actions/workflows/ci.yml/badge.svg)](https://github.com/REPLACE_OWNER/ddm-migrator/actions/workflows/ci.yml)
+[![CI](https://github.com/mactesting12/ddm-migrator/actions/workflows/ci.yml/badge.svg)](https://github.com/mactesting12/ddm-migrator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue.svg)](#requirements)
 
@@ -11,7 +11,7 @@ configuration profiles and it converts each payload into the equivalent DDM
 `*.ddm.json` declarations — and gives you a migration report that explains, payload
 by payload, exactly what it did and why.
 
-> _A [Machinery Software](https://github.com/REPLACE_OWNER) project._
+> _A [Machinery Software](https://github.com/mactesting12) project._
 
 ![DDM Migrator screenshot placeholder](docs/screenshot.png)
 
@@ -66,7 +66,7 @@ take the generated declarations into your own MDM workflow.
 ## Build & run
 
 ```sh
-git clone https://github.com/REPLACE_OWNER/ddm-migrator.git
+git clone https://github.com/mactesting12/ddm-migrator.git
 cd ddm-migrator
 
 # Run the app

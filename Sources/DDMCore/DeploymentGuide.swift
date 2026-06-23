@@ -40,7 +40,7 @@ public enum DeploymentGuide {
         md += "## Vendor support\n\n"
         md += "| MDM | Import custom DDM JSON? | How |\n"
         md += "|---|---|---|\n"
-        md += "| **FleetDM** | ✅ Yes | Whole-file. Upload the `.ddm.json` under **Controls → OS settings**, or commit it to your Fleet **GitOps** repo (`apple_settings.configuration_profiles` accepts `.json` declarations). |\n"
+        md += "| **FleetDM** | ✅ Yes | Whole-file. Upload the `.ddm.json` under **Controls → OS settings**, or commit it to your Fleet **GitOps** repo — a ready-to-merge `fleet-gitops.yml` snippet (referencing every declaration under `controls.apple_settings.configuration_profiles`) is generated alongside this guide. |\n"
         md += "| **Jamf Pro** | ✅ Yes (Blueprints) | Paste. **Blueprints → Custom Declarations → Add item**: set **Kind** = Configuration, **Channel** = System (or User), **Type** = the declaration's `Type`, **Payload** = the contents of its `Payload` object (use the `.payload.json` companion file). Jamf generates the Identifier/ServerToken. (API deploy is \"coming soon\" per Jamf.) |\n"
         md += "| **Kandji (now Iru)** | ⚠️ Not directly | Kandji — rebranded **Iru** in late 2025 — delivers DDM through its own **Library items / policies**; no documented import for arbitrary custom declaration JSON. Use these files as the source of truth and configure the matching settings in Kandji/Iru. |\n"
         md += "| **Addigy** | ⚠️ Not directly | Addigy delivers DDM through its **policies** (today focused on OS updates); there's no documented import for arbitrary custom declaration JSON yet. Use these files as the source of truth and map the settings into Addigy policies. |\n"

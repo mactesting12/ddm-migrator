@@ -86,7 +86,7 @@ export drops a `DEPLOYMENT.md` with step-by-step instructions; here's the summar
 
 | MDM | Import custom DDM JSON? | How |
 |---|---|---|
-| **FleetDM** | ✅ Yes | Upload the `.ddm.json` under **Controls → OS settings**, or commit it to Fleet **GitOps** (`apple_settings.configuration_profiles` takes `.json` declarations). |
+| **FleetDM** | ✅ Yes | Upload the `.ddm.json` under **Controls → OS settings**, or commit to Fleet **GitOps** — each export generates a ready-to-merge `fleet-gitops.yml` referencing every declaration. |
 | **Jamf Pro** | ✅ Yes (Blueprints) | **Blueprints → Custom Declarations → Add item**: set Kind = Configuration, Channel, **Type**, and **Payload** (use the `.payload.json` companion — Jamf wants the Payload object, not the whole envelope, and generates the Identifier itself). API deploy is "coming soon" per Jamf. |
 | **Kandji (now Iru)** | ⚠️ Not directly | DDM is delivered via Kandji/Iru's own Library items; no documented custom-JSON import. Use the files as the audited source of truth. |
 | **Addigy** | ⚠️ Not directly | DDM via Addigy policies (today mostly OS updates); no custom-JSON import yet. |

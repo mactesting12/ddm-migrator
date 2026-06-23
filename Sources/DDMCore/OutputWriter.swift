@@ -22,6 +22,7 @@ public enum OutputWriter {
         public let reportMarkdownURL: URL
         public let reportJSONURL: URL
         public let deploymentGuideURL: URL
+        public let fleetGitOpsURL: URL?
     }
 
     public enum WriteError: Error, LocalizedError {
@@ -37,11 +38,13 @@ public enum OutputWriter {
     public static func write(report: MigrationReport,
                              to outputDirectory: URL,
                              writePreservedPlists: Bool = true,
-                             writePayloadOnlyFiles: Bool = true) throws -> WriteSummary {
+                             writePayloadOnlyFiles: Bool = true,
+                             writeFleetGitOps: Bool = true) throws -> WriteSummary {
         let fm = FileManager.default
         try ensureDirectory(outputDirectory, fm: fm)
 
         var written: [URL] = []
+        var fleetEntries: [FleetGitOps.Entry] = []
 
         for profile in report.results {
             guard profile.error == nil, !profile.payloads.isEmpty else { continue }
@@ -54,6 +57,10 @@ public enum OutputWriter {
                     let fileURL = uniqueURL(in: profileDir, fileName: decl.suggestedFileName(), fm: fm)
                     try decl.jsonData().write(to: fileURL, options: .atomic)
                     written.append(fileURL)
+                    fleetEntries.append(FleetGitOps.Entry(
+                        sourceFile: profile.fileName,
+                        relativePath: "./\(folderName)/\(fileURL.lastPathComponent)",
+                        classification: p.classification))
 
                     // Payload-only companion for paste-based MDMs (e.g. Jamf Pro
                     // Blueprints, which wants the Payload object, not the envelope).
@@ -97,11 +104,21 @@ public enum OutputWriter {
         try Data(DeploymentGuide.markdown(report: report).utf8).write(to: deployURL, options: .atomic)
         written.append(deployURL)
 
+        // Fleet GitOps snippet (files-only; references the .ddm.json declarations).
+        var fleetURL: URL?
+        if writeFleetGitOps {
+            let url = outputDirectory.appendingPathComponent("fleet-gitops.yml")
+            try Data(FleetGitOps.yaml(entries: fleetEntries).utf8).write(to: url, options: .atomic)
+            written.append(url)
+            fleetURL = url
+        }
+
         return WriteSummary(outputDirectory: outputDirectory,
                             filesWritten: written,
                             reportMarkdownURL: mdURL,
                             reportJSONURL: jsonURL,
-                            deploymentGuideURL: deployURL)
+                            deploymentGuideURL: deployURL,
+                            fleetGitOpsURL: fleetURL)
     }
 
     // MARK: helpers

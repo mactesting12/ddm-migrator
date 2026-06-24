@@ -130,6 +130,26 @@ scripts/build-app.sh            # -> build/DDM Migrator.app
 open "build/DDM Migrator.app"
 ```
 
+### Command-line (for CI / scripting)
+
+The same engine ships as a headless `ddm-migrate` CLI:
+
+```sh
+swift run ddm-migrate fixtures/ -o out/
+# or build a binary: swift build -c release && .build/release/ddm-migrate ...
+
+ddm-migrate <inputs...> -o <output-dir> [options]
+  -o, --output <dir>     Output directory (required)
+  -q, --quiet            Suppress the per-file summary
+      --strict           Exit non-zero if any input fails to parse
+      --no-payload-only  Skip .payload.json companions (Jamf paste)
+      --no-preserved     Skip .preserved.plist companions (legacy)
+      --no-fleet         Skip the fleet-gitops.yml snippet
+```
+
+It writes the same declarations, reports, `DEPLOYMENT.md`, and `fleet-gitops.yml`
+as the app — handy in a pipeline.
+
 ## Architecture
 
 The logic and the UI are cleanly separated so the engine can be reused or wrapped
@@ -139,6 +159,7 @@ in a CLI later:
 |---|---|
 | **`DDMCore`** | The engine. Pure Swift, no UI. CMS decode → payload walk → fan-out / MCX / legacy-wrap → declarations + report. Fully unit-tested. |
 | **`DDMMigratorApp`** | The SwiftUI app: drop zone, results table, JSON preview, export. |
+| **`ddm-migrate`** | Headless CLI over the same engine, for CI and scripting. |
 
 The two interesting tables to read first:
 

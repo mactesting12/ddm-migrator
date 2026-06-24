@@ -11,6 +11,8 @@ let package = Package(
         .library(name: "DDMCore", targets: ["DDMCore"]),
         // The SwiftUI app. Depends on DDMCore.
         .executable(name: "DDMMigratorApp", targets: ["DDMMigratorApp"]),
+        // Headless CLI over the same engine — for CI, scripting, and automation.
+        .executable(name: "ddm-migrate", targets: ["DDMMigrateCLI"]),
     ],
     targets: [
         .target(
@@ -21,6 +23,11 @@ let package = Package(
             name: "DDMMigratorApp",
             dependencies: ["DDMCore"],
             path: "Sources/DDMMigratorApp"
+        ),
+        .executableTarget(
+            name: "DDMMigrateCLI",
+            dependencies: ["DDMCore"],
+            path: "Sources/DDMMigrateCLI"
         ),
         .testTarget(
             name: "DDMCoreTests",

@@ -68,14 +68,15 @@ Drag in one or many `.mobileconfig` files (or a folder) and DDM Migrator:
 **Input is files. Output is files.** DDM Migrator reads `.mobileconfig`, transforms
 payloads, and writes `*.ddm.json` declarations plus a report.
 
-It does **not**:
+By default it does **not** touch any MDM — it transforms files and writes files,
+and does not verify that declarations land on devices.
 
-- push to any MDM,
-- call the Jamf / Intune / any MDM API,
-- verify that declarations actually land on devices.
-
-That boundary is deliberate — it's what makes v1 useful and shippable today. You
-take the generated declarations into your own MDM workflow (see below).
+The **one** exception is opt-in: the CLI's `--push-fleet` uploads the produced
+declarations to FleetDM (the one MDM with a custom-declaration API today). It's
+off unless you ask for it, the API token comes only from the `FLEET_API_TOKEN`
+environment variable, and the SwiftUI app stays entirely files-only. Everything
+else is still "files in, files out" — you take the declarations into your own MDM
+workflow (see below).
 
 ## Deploying to your MDM (vendor-agnostic)
 
@@ -149,6 +150,26 @@ ddm-migrate <inputs...> -o <output-dir> [options]
 
 It writes the same declarations, reports, `DEPLOYMENT.md`, and `fleet-gitops.yml`
 as the app — handy in a pipeline.
+
+#### Pushing to Fleet (opt-in)
+
+The CLI can upload the produced declarations straight to FleetDM via its
+`POST /api/v1/fleet/configuration_profiles` API:
+
+```sh
+export FLEET_API_TOKEN=…              # token only from the environment, never a flag
+ddm-migrate profiles/ -o out/ \
+  --push-fleet --fleet-url https://fleet.example.com --fleet-team 3
+
+# preview first — lists what would upload, makes no calls:
+ddm-migrate profiles/ -o out/ --fleet-dry-run --fleet-url https://fleet.example.com
+```
+
+Legacy-wrapped declarations are skipped by default (their `ProfileURL` is a
+placeholder); add `--fleet-include-legacy` to send them. Newer Fleet builds
+renamed `team_id` → `fleet_id`; use `--fleet-team-field fleet_id` if needed.
+Jamf push is a planned follow-up once its Blueprints declaration-step API is
+confirmed.
 
 ## Architecture
 

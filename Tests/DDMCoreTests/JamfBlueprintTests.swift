@@ -88,4 +88,26 @@ final class JamfBlueprintTests: XCTestCase {
         XCTAssertEqual(req.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertNil(JamfClient(baseURLString: "x", tenantID: "", token: "t"))
     }
+
+    func testAuthTokenRequestShape() throws {
+        let url = try XCTUnwrap(JamfAuth.tokenURL(baseURLString: "us.apigw.jamf.com"))
+        XCTAssertEqual(url.absoluteString, "https://us.apigw.jamf.com/auth/token")
+
+        // Basic-header style: Authorization: Basic <base64(id:secret)>, grant in body.
+        let basic = JamfAuth.makeTokenRequest(tokenURL: url, clientID: "id", clientSecret: "sec", style: .basicHeader)
+        XCTAssertEqual(basic.httpMethod, "POST")
+        XCTAssertEqual(basic.value(forHTTPHeaderField: "Content-Type"), "application/x-www-form-urlencoded")
+        XCTAssertEqual(basic.value(forHTTPHeaderField: "Authorization"),
+                       "Basic " + Data("id:sec".utf8).base64EncodedString())
+        var body = String(data: try XCTUnwrap(basic.httpBody), encoding: .utf8) ?? ""
+        XCTAssertTrue(body.contains("grant_type=client_credentials"))
+        XCTAssertFalse(body.contains("client_secret"))
+
+        // Body-params style: credentials in the body, no auth header.
+        let params = JamfAuth.makeTokenRequest(tokenURL: url, clientID: "id", clientSecret: "sec", style: .bodyParams)
+        XCTAssertNil(params.value(forHTTPHeaderField: "Authorization"))
+        body = String(data: try XCTUnwrap(params.httpBody), encoding: .utf8) ?? ""
+        XCTAssertTrue(body.contains("client_id=id"))
+        XCTAssertTrue(body.contains("client_secret=sec"))
+    }
 }

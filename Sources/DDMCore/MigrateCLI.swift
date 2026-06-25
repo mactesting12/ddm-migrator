@@ -318,9 +318,26 @@ public enum MigrateCLI {
         guard let tenant, !tenant.isEmpty else {
             err("error: --push-jamf requires --jamf-tenant <tenantId>\n"); return 2
         }
-        guard let token = environment["JAMF_API_TOKEN"], !token.isEmpty else {
-            err("error: set JAMF_API_TOKEN in the environment to push to Jamf\n"); return 2
+
+        // Resolve a bearer token: an explicit JAMF_API_TOKEN wins; otherwise do
+        // the OAuth2 client-credentials exchange with JAMF_CLIENT_ID/SECRET.
+        let token: String
+        if let t = environment["JAMF_API_TOKEN"], !t.isEmpty {
+            token = t
+        } else if let cid = environment["JAMF_CLIENT_ID"], !cid.isEmpty,
+                  let csec = environment["JAMF_CLIENT_SECRET"], !csec.isEmpty {
+            out("  authenticating with client credentials…\n")
+            let (tok, authErr) = JamfAuth.fetchToken(baseURLString: urlString,
+                                                     clientID: cid, clientSecret: csec)
+            guard let tok else {
+                err("error: Jamf authentication failed: \(authErr ?? "unknown")\n"); return 2
+            }
+            token = tok
+        } else {
+            err("error: set JAMF_API_TOKEN, or JAMF_CLIENT_ID + JAMF_CLIENT_SECRET, to push to Jamf\n")
+            return 2
         }
+
         guard let client = JamfClient(baseURLString: urlString, tenantID: tenant, token: token) else {
             err("error: invalid --jamf-url / --jamf-tenant\n"); return 2
         }
@@ -437,7 +454,8 @@ public enum MigrateCLI {
           --jamf-dry-run             Print the request body; make no calls.
           --jamf-include-legacy      Send legacy payloads as a
                                      com.jamf.ddm-configuration-profile component.
-      The API token is read from the JAMF_API_TOKEN environment variable.
+      Auth: set JAMF_API_TOKEN directly, or JAMF_CLIENT_ID + JAMF_CLIENT_SECRET
+      for the OAuth2 client-credentials exchange (POST {jamf-url}/auth/token).
 
     EXAMPLES:
       ddm-migrate profiles/ -o out/

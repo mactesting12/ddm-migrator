@@ -40,7 +40,7 @@ public enum DeploymentGuide {
         md += "## Vendor support\n\n"
         md += "| MDM | Import custom DDM JSON? | How |\n"
         md += "|---|---|---|\n"
-        md += "| **FleetDM** | ✅ Yes | Whole-file. Upload the `.ddm.json` under **Controls → OS settings**, or commit it to your Fleet **GitOps** repo — a ready-to-merge `fleet-gitops.yml` snippet (referencing every declaration under `controls.apple_settings.configuration_profiles`) is generated alongside this guide. |\n"
+        md += "| **FleetDM** | ✅ Yes | Whole-file. Upload the `.ddm.json` under **Controls → OS settings**; commit it to your Fleet **GitOps** repo (a ready-to-merge `fleet-gitops.yml` is generated alongside this guide); or push directly with `ddm-migrate --push-fleet --fleet-url … ` (token via `FLEET_API_TOKEN`). |\n"
         md += "| **Jamf Pro** | ✅ Yes (Blueprints) | Paste. **Blueprints → Custom Declarations → Add item**: set **Kind** = Configuration, **Channel** = System (or User), **Type** = the declaration's `Type`, **Payload** = the contents of its `Payload` object (use the `.payload.json` companion file). Jamf generates the Identifier/ServerToken. (API deploy is \"coming soon\" per Jamf.) |\n"
         md += "| **Kandji (now Iru)** | ⚠️ Not directly | Kandji — rebranded **Iru** in late 2025 — delivers DDM through its own **Library items / policies**; no documented import for arbitrary custom declaration JSON. Use these files as the source of truth and configure the matching settings in Kandji/Iru. |\n"
         md += "| **Addigy** | ⚠️ Not directly | Addigy delivers DDM through its **policies** (today focused on OS updates); there's no documented import for arbitrary custom declaration JSON yet. Use these files as the source of truth and map the settings into Addigy policies. |\n"
@@ -62,8 +62,10 @@ public enum DeploymentGuide {
         md += "- **Flagged payloads:** anything marked ⚠️ in `migration-report.md` needs manual review "
         md += "before deployment — it wasn't auto-converted.\n\n"
 
-        md += "> Scope: DDM Migrator transforms files. It does not push to any MDM or verify that "
-        md += "declarations land on devices — you bring the output into your MDM's own workflow above.\n"
+        md += "> Scope: DDM Migrator transforms files. By default it doesn't touch any MDM; the one "
+        md += "exception is the opt-in `ddm-migrate --push-fleet` (FleetDM only, token via "
+        md += "`FLEET_API_TOKEN`). It does not verify that declarations land on devices — bring the "
+        md += "output into your MDM's own workflow above.\n"
         return md
     }
 }

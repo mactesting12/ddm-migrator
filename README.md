@@ -71,12 +71,13 @@ payloads, and writes `*.ddm.json` declarations plus a report.
 By default it does **not** touch any MDM — it transforms files and writes files,
 and does not verify that declarations land on devices.
 
-The **one** exception is opt-in: the CLI's `--push-fleet` uploads the produced
-declarations to FleetDM (the one MDM with a custom-declaration API today). It's
-off unless you ask for it, the API token comes only from the `FLEET_API_TOKEN`
-environment variable, and the SwiftUI app stays entirely files-only. Everything
-else is still "files in, files out" — you take the declarations into your own MDM
-workflow (see below).
+The exceptions are opt-in CLI pushes: `--push-fleet` uploads the declarations to
+FleetDM, and `--push-jamf` creates a Jamf Blueprint via the Jamf Platform API —
+the two MDMs with a custom-declaration API today. Both are off unless you ask for
+them, tokens come only from environment variables (`FLEET_API_TOKEN` /
+`JAMF_API_TOKEN`, never flags, never logged), and the SwiftUI app stays entirely
+files-only. Everything else is still "files in, files out" — you take the
+declarations into your own MDM workflow (see below).
 
 ## Deploying to your MDM (vendor-agnostic)
 
@@ -168,8 +169,29 @@ ddm-migrate profiles/ -o out/ --fleet-dry-run --fleet-url https://fleet.example.
 Legacy-wrapped declarations are skipped by default (their `ProfileURL` is a
 placeholder); add `--fleet-include-legacy` to send them. Newer Fleet builds
 renamed `team_id` → `fleet_id`; use `--fleet-team-field fleet_id` if needed.
-Jamf push is a planned follow-up once its Blueprints declaration-step API is
-confirmed.
+
+#### Pushing to Jamf (opt-in)
+
+The CLI can also create a **Jamf Blueprint** via the Jamf Platform API. Migrated
+and fanned-out declarations become a `com.jamf.ddm.custom-declarations`
+component; with `--jamf-include-legacy`, legacy payloads are sent as a
+`com.jamf.ddm-configuration-profile` component (using the preserved original
+payload — no hosted `ProfileURL` needed).
+
+```sh
+export JAMF_API_TOKEN=…
+ddm-migrate profiles/ -o out/ --push-jamf \
+  --jamf-url https://us.apigw.jamf.com --jamf-tenant <tenantId> \
+  --jamf-device-group <groupId> --jamf-blueprint-name "Workstations DDM"
+
+# preview the exact Blueprint request body, no calls:
+ddm-migrate profiles/ -o out/ --jamf-dry-run --jamf-include-legacy
+```
+
+> Note: the Jamf bearer token (`JAMF_API_TOKEN`) is currently supplied out of
+> band; the API-client OAuth2 client-credentials exchange is a planned
+> convenience. The request-body construction is fully validated; the live POST
+> needs a real tenant to exercise.
 
 ## Architecture
 

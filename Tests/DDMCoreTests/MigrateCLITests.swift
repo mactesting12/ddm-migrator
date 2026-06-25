@@ -101,6 +101,25 @@ final class MigrateCLITests: XCTestCase {
         XCTAssertTrue(r.err.contains("fleet-url"))
     }
 
+    func testJamfDryRunNeedsNoCreds() throws {
+        let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
+        let r = capture([fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path,
+                         "-o", outDir.path, "--jamf-dry-run", "--jamf-device-group", "g1"])
+        XCTAssertEqual(r.code, 0)
+        XCTAssertTrue(r.out.contains("DRY RUN"))
+        XCTAssertTrue(r.out.contains("com.jamf.ddm.custom-declarations"))
+    }
+
+    func testJamfPushWithoutAnyCredentialsIsConfigError() throws {
+        let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
+        let r = capture([fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path,
+                         "-o", outDir.path, "--push-jamf",
+                         "--jamf-url", "https://us.apigw.jamf.com", "--jamf-tenant", "t1"],
+                        env: [:])
+        XCTAssertEqual(r.code, 2)
+        XCTAssertTrue(r.err.contains("JAMF_CLIENT_ID"))
+    }
+
     func testFleetDryRunSkipsLegacyByDefault() throws {
         let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
         // legacy-only produces only legacy-wrapped declarations → skipped by default.

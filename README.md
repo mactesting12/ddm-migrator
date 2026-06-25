@@ -179,19 +179,21 @@ component; with `--jamf-include-legacy`, legacy payloads are sent as a
 payload — no hosted `ProfileURL` needed).
 
 ```sh
-export JAMF_API_TOKEN=…
+# Auth via a Jamf API client (OAuth2 client-credentials, done for you):
+export JAMF_CLIENT_ID=…  JAMF_CLIENT_SECRET=…
 ddm-migrate profiles/ -o out/ --push-jamf \
   --jamf-url https://us.apigw.jamf.com --jamf-tenant <tenantId> \
   --jamf-device-group <groupId> --jamf-blueprint-name "Workstations DDM"
 
-# preview the exact Blueprint request body, no calls:
+# preview the exact Blueprint request body, no calls / no creds needed:
 ddm-migrate profiles/ -o out/ --jamf-dry-run --jamf-include-legacy
 ```
 
-> Note: the Jamf bearer token (`JAMF_API_TOKEN`) is currently supplied out of
-> band; the API-client OAuth2 client-credentials exchange is a planned
-> convenience. The request-body construction is fully validated; the live POST
-> needs a real tenant to exercise.
+Auth: provide `JAMF_CLIENT_ID` + `JAMF_CLIENT_SECRET` and the CLI performs the
+OAuth2 client-credentials exchange (`POST {jamf-url}/auth/token`) for you, or
+supply a pre-obtained bearer token via `JAMF_API_TOKEN`. The request-body
+construction and token exchange are unit-tested; the live POST needs a real
+tenant to exercise.
 
 ## Architecture
 

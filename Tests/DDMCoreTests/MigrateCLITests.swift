@@ -87,7 +87,7 @@ final class MigrateCLITests: XCTestCase {
         let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
         let r = capture([fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path,
                          "-o", outDir.path, "--push-fleet", "--fleet-url", "https://fleet.example.com"],
-                        env: [:])
+                        env: ["DDM_ENABLE_PUSH": "1"])
         XCTAssertEqual(r.code, 2)
         XCTAssertTrue(r.err.contains("FLEET_API_TOKEN"))
     }
@@ -96,9 +96,26 @@ final class MigrateCLITests: XCTestCase {
         let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
         let r = capture([fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path,
                          "-o", outDir.path, "--push-fleet"],
-                        env: ["FLEET_API_TOKEN": "tok"])
+                        env: ["DDM_ENABLE_PUSH": "1", "FLEET_API_TOKEN": "tok"])
         XCTAssertEqual(r.code, 2)
         XCTAssertTrue(r.err.contains("fleet-url"))
+    }
+
+    func testLivePushDisabledWithoutFeatureFlag() throws {
+        let outDir = tmpOut(); defer { try? FileManager.default.removeItem(at: outDir) }
+        let aa = fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path
+        // Fleet: all config present but the flag is off → blocked.
+        let f = capture([aa, "-o", outDir.path, "--push-fleet",
+                         "--fleet-url", "https://fleet.example.com"],
+                        env: ["FLEET_API_TOKEN": "tok"])
+        XCTAssertEqual(f.code, 2)
+        XCTAssertTrue(f.err.contains("DDM_ENABLE_PUSH"))
+        // Jamf: same.
+        let j = capture([aa, "-o", outDir.path, "--push-jamf",
+                         "--jamf-url", "https://us.apigw.jamf.com", "--jamf-tenant", "t1"],
+                        env: ["JAMF_API_TOKEN": "tok"])
+        XCTAssertEqual(j.code, 2)
+        XCTAssertTrue(j.err.contains("DDM_ENABLE_PUSH"))
     }
 
     func testJamfDryRunNeedsNoCreds() throws {
@@ -115,7 +132,7 @@ final class MigrateCLITests: XCTestCase {
         let r = capture([fixturesDir().appendingPathComponent("all-fanout-domains.mobileconfig").path,
                          "-o", outDir.path, "--push-jamf",
                          "--jamf-url", "https://us.apigw.jamf.com", "--jamf-tenant", "t1"],
-                        env: [:])
+                        env: ["DDM_ENABLE_PUSH": "1"])
         XCTAssertEqual(r.code, 2)
         XCTAssertTrue(r.err.contains("JAMF_CLIENT_ID"))
     }

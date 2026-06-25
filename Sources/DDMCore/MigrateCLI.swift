@@ -233,6 +233,11 @@ public enum MigrateCLI {
             return 0
         }
 
+        guard isPushEnabled(environment) else {
+            err(pushDisabledMessage("Fleet", dryFlag: "--fleet-dry-run"))
+            return 2
+        }
+
         guard let token = environment["FLEET_API_TOKEN"], !token.isEmpty else {
             err("error: set FLEET_API_TOKEN in the environment to push to Fleet\n")
             return 2
@@ -312,6 +317,11 @@ public enum MigrateCLI {
             return 0
         }
 
+        guard isPushEnabled(environment) else {
+            err(pushDisabledMessage("Jamf", dryFlag: "--jamf-dry-run"))
+            return 2
+        }
+
         guard let urlString, !urlString.isEmpty else {
             err("error: --push-jamf requires --jamf-url <https://region.apigw.jamf.com>\n"); return 2
         }
@@ -350,6 +360,23 @@ public enum MigrateCLI {
             out("  ⛔️ \(r.message ?? "request failed") (HTTP \(r.statusCode))\n")
             return 1
         }
+    }
+
+    /// Live MDM push is feature-flagged off by default until validated against a
+    /// sandbox. `DDM_ENABLE_PUSH=1` (or true/yes) turns it on. Dry-run is never
+    /// gated — it makes no network calls.
+    static func isPushEnabled(_ env: [String: String]) -> Bool {
+        let v = (env["DDM_ENABLE_PUSH"] ?? "").lowercased()
+        return v == "1" || v == "true" || v == "yes"
+    }
+
+    private static func pushDisabledMessage(_ vendor: String, dryFlag: String) -> String {
+        """
+        error: live \(vendor) push is experimental and disabled by default.
+               Validate against a sandbox first, then set DDM_ENABLE_PUSH=1 to enable it.
+               (\(dryFlag) previews the request and is always available.)
+
+        """
     }
 
     private static func normalizedHost(_ s: String) -> String {
@@ -432,7 +459,10 @@ public enum MigrateCLI {
       -h, --help             Show this help.
           --version          Show the version.
 
-    FLEET PUSH (opt-in — the only feature that talks to an MDM):
+    MDM PUSH (experimental): live pushes are disabled unless DDM_ENABLE_PUSH=1.
+      The --*-dry-run previews are always available and make no network calls.
+
+    FLEET PUSH (opt-in):
           --push-fleet            Upload produced declarations to Fleet.
           --fleet-url <url>       Fleet server URL (required with --push-fleet).
           --fleet-team <id>       Team/"fleet" id to scope to (default: Unassigned).

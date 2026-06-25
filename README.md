@@ -73,11 +73,12 @@ and does not verify that declarations land on devices.
 
 The exceptions are opt-in CLI pushes: `--push-fleet` uploads the declarations to
 FleetDM, and `--push-jamf` creates a Jamf Blueprint via the Jamf Platform API —
-the two MDMs with a custom-declaration API today. Both are off unless you ask for
-them, tokens come only from environment variables (`FLEET_API_TOKEN` /
-`JAMF_API_TOKEN`, never flags, never logged), and the SwiftUI app stays entirely
-files-only. Everything else is still "files in, files out" — you take the
-declarations into your own MDM workflow (see below).
+the two MDMs with a custom-declaration API today. These are **experimental and
+feature-flagged off**: a live push requires `DDM_ENABLE_PUSH=1` (validate against
+a sandbox first), while the `--*-dry-run` previews always work and make no calls.
+Tokens come only from environment variables (never flags, never logged), and the
+SwiftUI app stays entirely files-only. Everything else is still "files in, files
+out" — you take the declarations into your own MDM workflow (see below).
 
 ## Deploying to your MDM (vendor-agnostic)
 
@@ -159,10 +160,11 @@ The CLI can upload the produced declarations straight to FleetDM via its
 
 ```sh
 export FLEET_API_TOKEN=…              # token only from the environment, never a flag
+export DDM_ENABLE_PUSH=1             # experimental — required to actually push
 ddm-migrate profiles/ -o out/ \
   --push-fleet --fleet-url https://fleet.example.com --fleet-team 3
 
-# preview first — lists what would upload, makes no calls:
+# preview first — lists what would upload, makes no calls, needs no flag:
 ddm-migrate profiles/ -o out/ --fleet-dry-run --fleet-url https://fleet.example.com
 ```
 
@@ -181,6 +183,7 @@ payload — no hosted `ProfileURL` needed).
 ```sh
 # Auth via a Jamf API client (OAuth2 client-credentials, done for you):
 export JAMF_CLIENT_ID=…  JAMF_CLIENT_SECRET=…
+export DDM_ENABLE_PUSH=1            # experimental — required to actually push
 ddm-migrate profiles/ -o out/ --push-jamf \
   --jamf-url https://us.apigw.jamf.com --jamf-tenant <tenantId> \
   --jamf-device-group <groupId> --jamf-blueprint-name "Workstations DDM"
